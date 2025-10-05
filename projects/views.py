@@ -1,3 +1,10 @@
-from django.shortcuts import render
+# projects/views.py
+from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
+from .models import Project
+from .serializers import ProjectSerializer
 
-# Create your views here.
+class ProjectViewSet(viewsets.ModelViewSet):
+    queryset = Project.objects.all()
+    serializer_class = ProjectSerializer
+    permission_classes = [IsAuthenticated] # Apenas usuários logados podem gerenciar projetos

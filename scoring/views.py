@@ -1,3 +1,10 @@
-from django.shortcuts import render
+# scoring/views.py
+from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
+from .models import Financing
+from .serializers import FinancingSerializer
 
-# Create your views here.
+class FinancingViewSet(viewsets.ModelViewSet):
+    queryset = Financing.objects.all()
+    serializer_class = FinancingSerializer
+    permission_classes = [IsAuthenticated]

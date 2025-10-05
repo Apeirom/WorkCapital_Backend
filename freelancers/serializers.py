@@ -43,3 +43,38 @@ class UserProfileSerializer(serializers.ModelSerializer):
         model = UserProfile
         fields = '__all__'
         read_only_fields = ('id', 'created_at', 'updated_at', 'user') # O campo user será lidado separadamente
+
+
+class UserRegistrationSerializer(serializers.ModelSerializer):
+    # Campos que vêm do modelo User padrão
+    email = serializers.EmailField(write_only=True)
+    password = serializers.CharField(write_only=True)
+    
+    # Campos que vêm do modelo UserProfile
+    cpf = serializers.CharField(max_length=14)
+    # ... adicione aqui outros campos obrigatórios do UserProfile (phone, gender, etc.)
+
+    class Meta:
+        model = UserProfile
+        # Incluímos os campos necessários para criar o User padrão e o UserProfile
+        fields = ('id', 'email', 'password', 'cpf', 'phone', 'gender', 'city', 'state') 
+        # Adicione todos os campos do UserProfile que você quer que o usuário preencha
+
+    # Função para salvar (CRIA o User e o UserProfile)
+    def create(self, validated_data):
+        email_data = validated_data.pop('email')
+        password_data = validated_data.pop('password')
+        
+        # 1. Cria o User Padrão (usa email para username e email)
+        user = User.objects.create_user(
+            username=email_data, # Username pode ser o email
+            email=email_data,
+            password=password_data
+        )
+        
+        # 2. Cria o UserProfile (usa o restante dos dados validados)
+        profile = UserProfile.objects.create(
+            user=user, 
+            **validated_data
+        )
+        return profile

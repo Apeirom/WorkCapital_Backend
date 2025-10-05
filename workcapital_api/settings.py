@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -42,6 +43,7 @@ INSTALLED_APPS = [
     # Third-party apps
     'rest_framework',
     'corsheaders',
+    'rest_framework_simplejwt',
 
     # My apps
     'freelancers',  # Adicione esta linha
@@ -114,13 +116,25 @@ AUTH_PASSWORD_VALIDATORS = [
 # Em produção real, você listaria aqui apenas o domínio do seu frontend.
 CORS_ALLOW_ALL_ORIGINS = True 
 
-# 2. Django REST Framework (DRF)
-# Boa prática para a sua API
+# Define o esquema de autenticação padrão como Token JWT
 REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
     'DEFAULT_PERMISSION_CLASSES': [
-        # Permite acesso irrestrito ao seu endpoint, ideal para o MVP
-        'rest_framework.permissions.AllowAny', 
+        'rest_framework.permissions.AllowAny', # Permite acesso público por enquanto
     ]
+}
+
+# Configurações do Simple JWT
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60), # Token expira em 60 minutos
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),   # Token de refresh dura 1 dia
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
+    'ALGORITHM': 'HS256',
+    'SIGNING_KEY': SECRET_KEY, # Usa sua SECRET_KEY do Django
+    'AUTH_HEADER_TYPES': ('Bearer',), # O frontend enviará 'Authorization: Bearer <token>'
 }
 
 # Internationalization
