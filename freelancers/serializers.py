@@ -1,5 +1,6 @@
 # freelancers/serializers.py
 from rest_framework import serializers
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from .models import Freelancer, UserProfile, Contractor, Investor, CreditTaker
 from django.contrib.auth.models import User # Para o modelo de autenticação
 
@@ -130,3 +131,41 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         # O profile.save() é desnecessário agora
 
         return profile
+    
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    """
+    Serializer customizado que adiciona os dados do UserProfile à resposta JWT.
+    """
+    @classmethod
+    def get_token(cls, user):
+        # Chama a função base para gerar os tokens
+        token = super().get_token(user)
+        
+        # Adiciona campos extras ao payload do token, se necessário.
+        # token['username'] = user.username 
+        
+        return token
+
+    def validate(self, attrs):
+        # Executa a validação padrão (que gera os tokens 'access' e 'refresh')
+        data = super().validate(attrs)
+
+        # Após a validação (e geração bem-sucedida dos tokens), 
+        # anexa os dados do UserProfile serializados.
+        
+        try:
+            # Pega o UserProfile via a relação 'profile'
+            user_profile = self.user.profile
+            
+            # Serializa o UserProfile usando o Serializer que já existe
+            profile_serializer = UserProfileSerializer(user_profile)
+            
+            # Adiciona a chave 'user' (com os dados do perfil) à resposta
+            data['user'] = profile_serializer.data
+            
+        except UserProfile.DoesNotExist:
+            # Caso o usuário logado não tenha um UserProfile, retorna um erro ou um perfil vazio.
+            # Para o hackathon, vamos retornar vazio.
+            data['user'] = None
+        
+        return data
