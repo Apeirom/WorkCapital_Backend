@@ -24,10 +24,55 @@ class CreditTakerSerializer(serializers.ModelSerializer):
         
 # Serializer do Freelancer (melhorado)
 class FreelancerSerializer(serializers.ModelSerializer):
+    # 1. CAMPOS VIRTUAIS (Novas informações para o frontend)
+    
+    # title: Já existe como 'prof_title' no modelo, vamos criar um alias
+    title = serializers.CharField(source='prof_title', read_only=True)
+    
+    # city: Busca a cidade e o estado do UserProfile relacionado (relacionamento 1:N)
+    city = serializers.SerializerMethodField() 
+    
+    # profileType: Gera um rótulo baseado em alguma métrica (simulação de lógica de negócio)
+    profileType = serializers.SerializerMethodField()
+
+    # images: Retorna uma lista de URLs fixas (Mock)
+    images = serializers.SerializerMethodField()
+
     class Meta:
         model = Freelancer
-        fields = '__all__'
-        read_only_fields = ('id', 'created_at', 'updated_at', 'avaliation_score') # Avaliação é gerada
+        # Campos que o frontend vai ver (title substitui prof_title)
+        fields = (
+            'id', 'title', 'profileType', 'description', 'city', 
+            'avaliation_score', 'suggest_hourly_rate', 'category'
+        )
+        read_only_fields = ('id', 'created_at', 'updated_at', 'avaliation_score') 
+
+    # --- MÉTODOS CUSTOMIZADOS (Implementando a Lógica) ---
+    
+    # 1. Método para obter a cidade (City, State)
+    def get_city(self, obj):
+        # obj é o objeto Freelancer. Acessa o UserProfile para pegar cidade/estado.
+        if obj.user_profile and obj.user_profile.city and obj.user_profile.state:
+            return f"{obj.user_profile.city}, {obj.user_profile.state}"
+        return "Local não informado"
+
+    # 2. Método para obter o Tipo de Perfil (Simulação)
+    def get_profileType(self, obj):
+        # Lógica: Baseado no score (avaliation_score) ou em projetos.
+        score = obj.avaliation_score or 0 # Pega o score (0 se for null)
+        
+        if score >= 85:
+            return "Perfil Campeão"
+        elif score >= 50:
+            return "Perfil Verificado"
+        else:
+            return "Novo Talento"
+
+    # 3. Método para obter a Descrição
+    def get_description(self, obj):
+        # Para o MVP, você pode retornar algo fixo ou usar o campo 'prof_title'
+        return f"{obj.prof_title} focado em resultados, criativo e pontual. Transforma ideias em soluções digitais que impulsionam negócios."
+
         
 # Serializer Principal do Usuário (CRUCIAL para Cadastro)
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -77,4 +122,13 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
             user=user, 
             **validated_data
         )
+
+        # 3. CRIA O CONTRACTOR E LIGA AO PROFILE
+        # O Contractor não requer nenhum dado de input extra neste momento.
+        contractor = Contractor.objects.create() 
+        
+        # Liga a instância Contractor ao campo 'contractor_profile' do UserProfile
+        profile.contractor_profile = contractor
+        profile.save() # Salva o UserProfile para persistir a ligação
+        
         return profile

@@ -1,7 +1,7 @@
 # scoring/models.py
 from django.db import models
 from workcapital_api.basemodels import BaseModel
-from freelancers.models import CreditTaker, Investor # Importa os novos modelos
+from freelancers.models import CreditTaker, Investor, UserProfile
 
 class Financing(BaseModel):
     # Relacionamento com Tomador de Crédito
@@ -30,3 +30,30 @@ class Financing(BaseModel):
 
     def __str__(self):
         return f"Financiamento {self.code} - Solicitado: {self.amount_request}"
+    
+class Payment(BaseModel):
+    # Pagador (Quem está enviando o dinheiro - pode ser um Contractor)
+    payer = models.ForeignKey(
+        UserProfile, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True, 
+        related_name='payments_sent'
+    )
+    
+    # Receptor (Quem está recebendo o dinheiro - pode ser um Freelancer)
+    recipient = models.ForeignKey(
+        UserProfile, 
+        on_delete=models.SET_NULL, 
+        null=True, 
+        blank=True, 
+        related_name='payments_received'
+    )
+    
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    
+    # Parâmetro de Categoria
+    category = models.CharField(max_length=50, default='Service_Payment') # Ex: 'Fee', 'Service_Payment', 'Investment'
+
+    def __str__(self):
+        return f"Pagamento de {self.amount} - Categoria: {self.category}"

@@ -59,6 +59,7 @@ class Freelancer(BaseModel):
     # DADOS DO FREELANCER
     prof_title = models.CharField(max_length=100)
     name = models.CharField(max_length=100)
+    description = models.TextField(null=True, blank=True)
     category = models.CharField(max_length=50) # Considere Choices
     suggest_hourly_rate = models.DecimalField(max_digits=6, decimal_places=2, default=0.00)
     
@@ -102,7 +103,7 @@ class Contractor(BaseModel):
     # O campo projectsids será a relação reversa (ForeignKey) no modelo Project
     # O campo paymentsIds é melhor ser uma relação reversa (ForeignKey) de um modelo Payment
     
-    company_name = models.CharField(max_length=100, null=True, blank=True) 
+    company_name = models.CharField(max_length=100, null=True, blank=True)
 
     def __str__(self):
         return f"Contratante (ID: {self.id})"

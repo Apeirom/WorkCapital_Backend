@@ -7,6 +7,7 @@ from .serializers import UserRegistrationSerializer, UserProfileSerializer, Free
 from .models import UserProfile, Freelancer, Investor, Contractor, CreditTaker 
 
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import action
 
 class RegisterView(APIView):
     # Permite acesso mesmo sem estar autenticado
@@ -33,6 +34,20 @@ class FreelancerViewSet(viewsets.ModelViewSet):
     serializer_class = FreelancerSerializer
     permission_classes = [IsAuthenticated]
 
+    @action(detail=True, methods=['get'])
+    def projects(self, request, pk=None):
+        """
+        GET /api/freelancers/{id}/projects/
+        Retorna todos os projetos em que este freelancer trabalhou.
+        """
+        freelancer = self.get_object()
+        # Usa o related_name 'projects_worked_on' definido no modelo Project
+        projects = freelancer.projects_worked_on.all() 
+        
+        # Você deve usar o ProjectSerializer aqui
+        serializer = ProjectSerializer(projects, many=True) 
+        return Response(serializer.data)
+
 class InvestorViewSet(viewsets.ModelViewSet):
     queryset = Investor.objects.all()
     serializer_class = InvestorSerializer
@@ -42,6 +57,20 @@ class ContractorViewSet(viewsets.ModelViewSet):
     queryset = Contractor.objects.all()
     serializer_class = ContractorSerializer
     permission_classes = [IsAuthenticated]
+
+    @action(detail=True, methods=['get'])
+    def projects(self, request, pk=None):
+        """
+        GET /api/contractors/{id}/projects/
+        Retorna todos os projetos criados por este contratante.
+        """
+        contractor = self.get_object()
+        # Usa o related_name 'created_projects' definido no modelo Project
+        projects = contractor.created_projects.all()
+        
+        # Você deve usar o ProjectSerializer aqui
+        serializer = ProjectSerializer(projects, many=True)
+        return Response(serializer.data)
 
 class CreditTakerViewSet(viewsets.ModelViewSet):
     queryset = CreditTaker.objects.all()
