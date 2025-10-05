@@ -1,0 +1,1 @@
+web: gunicorn workcapital_api.wsgi
