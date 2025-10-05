@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-j*ul(gs^ai&ein5*7g+4!93rd%w83^8wbkicse#ofeoj&1av8r
 DEBUG = False
 
 # 1. Adicione IPs e Domínios
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'sua-api-online.com', '.render.com'] 
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'workcapital-backend.onrender.com', '.render.com'] 
 # Inclua qualquer domínio que você venha a usar para o deploy (Ex: Render usa seus próprios subdomínios, Fly.io também)
 
 # Application definition
