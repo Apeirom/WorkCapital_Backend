@@ -110,25 +110,23 @@ class UserRegistrationSerializer(serializers.ModelSerializer):
         email_data = validated_data.pop('email')
         password_data = validated_data.pop('password')
         
-        # 1. Cria o User Padrão (usa email para username e email)
+        # 1. Cria o User Padrão
         user = User.objects.create_user(
-            username=email_data, # Username pode ser o email
+            username=email_data,
             email=email_data,
             password=password_data
         )
         
-        # 2. Cria o UserProfile (usa o restante dos dados validados)
+        # 2. Cria o Contractor (Obrigatório para o UserProfile)
+        contractor = Contractor.objects.create() 
+
+        # 3. Cria o UserProfile, LIGANDO O CONTRACTOR NA HORA
+        # Os dados restantes do validated_data (cpf, city, state) são usados aqui
         profile = UserProfile.objects.create(
-            user=user, 
+            user=user,
+            contractor_profile=contractor, # FAZ A LIGAÇÃO
             **validated_data
         )
+        # O profile.save() é desnecessário agora
 
-        # 3. CRIA O CONTRACTOR E LIGA AO PROFILE
-        # O Contractor não requer nenhum dado de input extra neste momento.
-        contractor = Contractor.objects.create() 
-        
-        # Liga a instância Contractor ao campo 'contractor_profile' do UserProfile
-        profile.contractor_profile = contractor
-        profile.save() # Salva o UserProfile para persistir a ligação
-        
         return profile

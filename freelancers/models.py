@@ -15,7 +15,7 @@ class UserProfile(BaseModel):
     # Parâmetros solicitados no seu esboço
     cpf = models.CharField(max_length=14, unique=True)
     phone = models.CharField(max_length=20, null=True, blank=True)
-    gender = models.CharField(max_length=10) # Considere usar choices para padronização
+    gender = models.CharField(max_length=10, null=True, blank=True) 
     city = models.CharField(max_length=100, null=True, blank=True)
     state = models.CharField(max_length=100, null=True, blank=True)
     account_balance = models.DecimalField(max_digits=12, decimal_places=2, default=0.00)
