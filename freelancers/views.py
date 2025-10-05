@@ -6,8 +6,11 @@ from rest_framework import viewsets
 from .serializers import UserRegistrationSerializer, UserProfileSerializer, FreelancerSerializer, InvestorSerializer, ContractorSerializer, CreditTakerSerializer
 from .models import UserProfile, Freelancer, Investor, Contractor, CreditTaker 
 
+from rest_framework_simplejwt.views import TokenObtainPairView
+from .serializers import CustomTokenObtainPairSerializer
+
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view, permission_classes
 
 class RegisterView(APIView):
     # Permite acesso mesmo sem estar autenticado
@@ -76,3 +79,6 @@ class CreditTakerViewSet(viewsets.ModelViewSet):
     queryset = CreditTaker.objects.all()
     serializer_class = CreditTakerSerializer
     permission_classes = [IsAuthenticated]
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
