@@ -25,7 +25,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-j*ul(gs^ai&ein5*7g+4!93rd%w83^8wbkicse#ofeoj&1av8r'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 # 1. Adicione IPs e Domínios
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'sua-api-online.com', '.render.com'] 
